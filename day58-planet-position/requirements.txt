@@ -1,0 +1,4 @@
+streamlit>=1.32.0
+skyfield>=1.48
+matplotlib>=3.8.0
+numpy>=1.26.0
