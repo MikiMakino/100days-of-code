@@ -1,0 +1,6 @@
+pywin32
+openpyxl
+pdfplumber
+pytesseract
+pdf2image
+Pillow
