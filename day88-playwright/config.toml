@@ -1,0 +1,30 @@
+# connpass CSV ダウンローダー 設定ファイル
+# パスに ~ を使うとホームディレクトリに展開されます
+
+[paths]
+# CSV保存先ベースディレクトリ
+base_dir = "~/Downloads/connpass_csv"
+# エラー時スクショ保存先（base_dir からの相対パス）
+error_dir = "_errors"
+
+[browser]
+# true にするとブラウザ非表示（手動ログインが必要な場合は false 推奨）
+headless = false
+
+[timeout]
+# ページ読み込み（ミリ秒）
+page_load_ms = 60_000
+# ログイン待機（ミリ秒）── 手動ログイン完了を待つ最大時間
+login_wait_ms = 300_000
+# ログイン済み判定（ミリ秒）
+login_check_ms = 2_000
+# CSVダウンロード待機（ミリ秒）
+download_ms = 60_000
+
+[events]
+# よく使うイベントURLを登録しておくと、引数なしで選択できる
+# urls = [
+#     "https://plug.connpass.com/event/381240/", 
+#     "https://plug.connpass.com/event/380819/"   
+# ]
+urls = ["https://plug.connpass.com/event/381240/"]
