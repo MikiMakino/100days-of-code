@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Access → pandas 変換アシスタント ユーザーガイド</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-light: #dbeafe;
+    --secondary: #7c3aed;
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --code-bg: #1e293b;
+    --code-text: #e2e8f0;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* ── レイアウト ── */
+  .layout { display: flex; min-height: 100vh; }
+
+  nav {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 24px 0;
+  }
+
+  .nav-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .nav-logo h1 { font-size: 14px; color: var(--primary); font-weight: 700; }
+  .nav-logo p { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  .nav-section { padding: 8px 20px 4px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+
+  nav a {
+    display: block;
+    padding: 7px 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all .15s;
+  }
+  nav a:hover, nav a.active {
+    color: var(--primary);
+    border-left-color: var(--primary);
+    background: var(--primary-light);
+  }
+
+  main {
+    flex: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 32px;
+  }
+
+  /* ── タイポグラフィ ── */
+  h1 { font-size: 28px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+  h2 { font-size: 20px; font-weight: 700; color: var(--text); margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 16px; font-weight: 700; color: var(--text); margin: 28px 0 12px; }
+  p { margin-bottom: 14px; }
+
+  /* ── セクション ── */
+  section { scroll-margin-top: 24px; }
+
+  /* ── バッジ ── */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-purple { background: #ede9fe; color: #6d28d9; }
+  .badge-green { background: #dcfce7; color: #15803d; }
+  .badge-orange { background: #ffedd5; color: #c2410c; }
+
+  /* ── カード ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .card-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+
+  /* ── アラート ── */
+  .alert {
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .alert-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+  .alert-info { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .alert-warn { background: #fffbeb; border: 1px solid #fde68a; }
+  .alert-danger { background: #fef2f2; border: 1px solid #fecaca; }
+  .alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; }
+
+  /* ── テーブル ── */
+  .table-wrap { overflow-x: auto; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: #f1f5f9; color: var(--text); font-weight: 700; padding: 10px 14px; text-align: left; border: 1px solid var(--border); }
+  td { padding: 9px 14px; border: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+
+  /* ── コードブロック ── */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 12px 0;
+    position: relative;
+  }
+  code { font-family: "Consolas", "Courier New", monospace; }
+  p code, li code, td code {
+    background: #f1f5f9;
+    color: #be185d;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: #334155;
+    color: #94a3b8;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: #475569; color: #e2e8f0; }
+  .copy-btn.copied { background: #166534; color: #bbf7d0; }
+
+  /* ── ステップ ── */
+  .steps { counter-reset: step; }
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+  .step-num {
+    counter-increment: step;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-body { flex: 1; padding-top: 4px; }
+  .step-body strong { display: block; margin-bottom: 6px; font-size: 15px; }
+
+  /* ── 変換例ボックス ── */
+  .convert-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .convert-pair pre { margin: 0; }
+  .convert-label { font-size: 11px; font-weight: 700; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .05em; }
+  .label-access { color: #9333ea; }
+  .label-pandas { color: #16a34a; }
+
+  @media (max-width: 700px) {
+    .convert-pair { grid-template-columns: 1fr; }
+    nav { display: none; }
+    main { padding: 24px 16px; }
+  }
+
+  /* ── フロー図 ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .flow-box {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 120px;
+  }
+  .flow-box.blue { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
+  .flow-box.green { border-color: #22c55e; background: #f0fdf4; color: #15803d; }
+  .flow-box.purple { border-color: #a855f7; background: #faf5ff; color: #7e22ce; }
+  .flow-arrow { font-size: 20px; color: var(--text-muted); }
+
+  /* ── TOC スクロール ── */
+  html { scroll-behavior: smooth; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+  ul, ol { padding-left: 24px; margin-bottom: 14px; }
+  li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ===== サイドナビ ===== -->
+<nav id="sidenav">
+  <div class="nav-logo">
+    <h1>🔄 変換アシスタント</h1>
+    <p>ユーザーガイド</p>
+  </div>
+
+  <div class="nav-section">はじめに</div>
+  <a href="#overview">概要</a>
+  <a href="#setup">セットアップ</a>
+  <a href="#launch">起動方法</a>
+
+  <div class="nav-section">SQL変換タブ</div>
+  <a href="#sql-basic">基本的な使い方</a>
+  <a href="#sql-samples">サンプルクエリ</a>
+  <a href="#sql-convert-table">変換対応表</a>
+  <a href="#sql-tips">変換のコツ</a>
+
+  <div class="nav-section">エクスポートタブ</div>
+  <a href="#export-overview">機能概要</a>
+  <a href="#export-steps">使い方</a>
+  <a href="#export-output">出力ファイル</a>
+
+  <div class="nav-section">CLIツール</div>
+  <a href="#cli-export">export_access.py</a>
+  <a href="#cli-batch">batch_convert.py</a>
+
+  <div class="nav-section">リファレンス</div>
+  <a href="#flow">移行フロー</a>
+  <a href="#unsupported">未対応・注意事項</a>
+  <a href="#faq">FAQ</a>
+</nav>
+
+<!-- ===== メインコンテンツ ===== -->
+<main>
+
+  <!-- ヘッダー -->
+  <section id="overview">
+    <h1>Access → pandas 変換アシスタント</h1>
+    <p style="color:var(--text-muted); margin-bottom:20px;">Day 89 / 100 Days of Code &nbsp;|&nbsp; 2026-03-09</p>
+
+    <p>
+      AccessのSQLクエリやVBAモジュールをPythonへ移行するための支援ツールです。
+      「完全自動変換」ではなく、<strong>たたき台コードを素早く生成してCopilotや手修正につなげる</strong>ことを目的としています。
+    </p>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin: 16px 0;">
+      <span class="badge badge-blue">Python 3.13</span>
+      <span class="badge badge-purple">Streamlit 1.50</span>
+      <span class="badge badge-green">pandas 2.x</span>
+      <span class="badge badge-orange">pywin32（エクスポート機能）</span>
+    </div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">💡</span>
+      <div>
+        <strong>SQL変換機能（Tab 1）</strong>はAccess・pywin32 なしで動きます。<br>
+        <strong>エクスポート機能（Tab 2）</strong>はWindows + Microsoft Access がインストールされている環境が必要です。
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- セットアップ -->
+  <section id="setup">
+    <h2>セットアップ</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Python 3.10 以上をインストール</strong>
+          <a href="https://python.org" target="_blank">python.org</a> からダウンロードしてインストールします。
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>依存ライブラリをインストール</strong>
+          <pre><button class="copy-btn" onclick="copyCode(this)">コピー</button><code>pip install -r requirements.txt</code></pre>
+          <p style="font-size:13px; color:var(--text-muted);">または個別に:</p>
+          <pre><button class="copy-btn" onclick="copyCode(this)">コピー</button><code>pip install streamlit pandas numpy pywin32</code></pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>（エクスポート機能を使う場合）Microsoft Access の確認</strong>
+          <p>Microsoft Access がインストールされていることを確認してください。Access Runtime でも動作します。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- 起動 -->
+  <section id="launch">
+    <h2>起動方法</h2>
+
+    <pre><button class="copy-btn" onclick="copyCode(this)">コピー</button><code>streamlit run app.py</code></pre>
+    <p>ブラウザで <code>http://localhost:8501</code> が開きます。</p>
+  </section>
+
+  <hr>
+
+  <!-- SQL変換：基本 -->
+  <section id="sql-basic">
+    <h2>SQL変換タブ — 基本的な使い方</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>AccessのSQLを貼り付ける</strong>
+          <p>Accessのクエリデザインビューで「SQLビュー」に切り替え、SQL文をコピーして左の入力欄に貼り付けます。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>「▶ pandas コードに変換」ボタンを押す</strong>
+          <p>右側にpandasコードのたたき台が生成されます。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>コードをダウンロードして手修正する</strong>
+          <p>「📥 コードをダウンロード」ボタンで <code>.py</code> ファイルをダウンロードできます。CSVファイル名やWHERE条件を実際のデータに合わせて修正してください。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠️</span>
+      <div>生成されたコードは<strong>たたき台</strong>です。実際に動かすには手修正が必要な場合があります。特に WHERE 条件・IIf の条件式・日本語列名まわりは確認してください。</div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- サンプル -->
+  <section id="sql-samples">
+    <h2>内蔵サンプルクエリ</h2>
+    <p>サイドバーから以下のサンプルを選んで変換を試せます。</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>サンプル名</th><th>内容</th></tr>
+        <tr><td>抽出クエリ（WHERE + ORDER BY）</td><td>基本的な WHERE / ORDER BY の変換</td></tr>
+        <tr><td>結合クエリ（LEFT JOIN）</td><td>2テーブルの LEFT JOIN + 計算列</td></tr>
+        <tr><td>集計クエリ（GROUP BY）</td><td>Sum / Count + GROUP BY + 日付条件</td></tr>
+        <tr><td>IIf / Is Null 使用例</td><td>IIf → np.where、IsNull → isna() の変換</td></tr>
+        <tr><td>INNER JOIN</td><td>INNER JOIN + WHERE での不等号条件</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- 変換対応表 -->
+  <section id="sql-convert-table">
+    <h2>変換対応表</h2>
+
+    <h3>基本構文</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Access SQL</th><th>pandas コード</th></tr>
+        <tr><td><code>FROM Orders</code></td><td><code>orders = pd.read_csv("Orders.csv")</code></td></tr>
+        <tr><td><code>LEFT JOIN Products AS p ON ...</code></td><td><code>orders.merge(products, left_on=..., how="left")</code></td></tr>
+        <tr><td><code>INNER JOIN Departments AS d ON ...</code></td><td><code>employees.merge(departments, ..., how="inner")</code></td></tr>
+        <tr><td><code>WHERE Status = "未処理"</code></td><td><code>df[df["Status"] == "未処理"]</code></td></tr>
+        <tr><td><code>WHERE 列 &lt;&gt; "値"</code></td><td><code>df[df["列"] != "値"]</code></td></tr>
+        <tr><td><code>WHERE 列 &gt;= #2024/01/01#</code></td><td><code>df[df["列"] >= "2024/01/01"]</code></td></tr>
+        <tr><td><code>ORDER BY 列 DESC</code></td><td><code>df.sort_values("列", ascending=False)</code></td></tr>
+        <tr><td><code>Quantity * UnitPrice AS Amount</code></td><td><code>df["Amount"] = df["Quantity"] * df["UnitPrice"]</code></td></tr>
+      </table>
+    </div>
+
+    <h3>集計・グループ化</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Access SQL</th><th>pandas コード</th></tr>
+        <tr><td><code>Sum(Quantity) AS TotalQty</code></td><td><code>.agg(("TotalQty", "sum"))</code></td></tr>
+        <tr><td><code>Count(OrderID) AS OrderCount</code></td><td><code>.agg(("OrderCount", "count"))</code></td></tr>
+        <tr><td><code>Avg(UnitPrice) AS AvgPrice</code></td><td><code>.agg(("AvgPrice", "mean"))</code></td></tr>
+        <tr><td><code>GROUP BY ProductCode</code></td><td><code>df.groupby(["ProductCode"]).agg(...).reset_index()</code></td></tr>
+      </table>
+    </div>
+
+    <h3>Access 独自関数</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Access 関数</th><th>変換後</th><th>備考</th></tr>
+        <tr><td><code>IsNull(列)</code></td><td><code>df["列"].isna()</code></td><td>自動変換</td></tr>
+        <tr><td><code>Not IsNull(列)</code></td><td><code>df["列"].notna()</code></td><td>自動変換</td></tr>
+        <tr><td><code>IIf(条件, 真, 偽)</code></td><td><code>np.where(条件, 真, 偽)</code></td><td>自動変換・条件式は手修正要</td></tr>
+        <tr><td><code>Like "*キーワード*"</code></td><td><code>.str.contains("キーワード")</code></td><td>自動変換・ワイルドカード除去</td></tr>
+        <tr><td><code>Nz(列, 0)</code></td><td><code>df["列"].fillna(0)</code></td><td>手修正</td></tr>
+        <tr><td><code>Format(列, "yyyy/mm")</code></td><td><code>df["列"].dt.strftime("%Y/%m")</code></td><td>手修正</td></tr>
+      </table>
+    </div>
+
+    <h3>変換例：LEFT JOIN + 計算列</h3>
+    <div class="convert-pair">
+      <div>
+        <div class="convert-label label-access">Access SQL</div>
+        <pre><code>SELECT
+    o.OrderID,
+    o.Quantity,
+    p.UnitPrice,
+    o.Quantity * p.UnitPrice AS Amount
+FROM Orders AS o
+LEFT JOIN Products AS p
+    ON o.ProductCode = p.ProductCode
+WHERE o.Status = "未処理"
+ORDER BY o.OrderDate;</code></pre>
+      </div>
+      <div>
+        <div class="convert-label label-pandas">pandas コード（生成）</div>
+        <pre><code>import pandas as pd
+
+orders = pd.read_csv("Orders.csv")
+products = pd.read_csv("Products.csv")
+
+df = orders.merge(
+    products,
+    left_on="ProductCode",
+    right_on="ProductCode",
+    how="left"
+)
+
+# --- WHERE ---
+df = df[df["Status"] == "未処理"].copy()
+
+# --- 計算列 ---
+df["Amount"] = df["Quantity"] * df["UnitPrice"]
+
+# --- ORDER BY ---
+df = df.sort_values("OrderDate", ascending=True)
+
+result = df[['OrderID', 'Quantity',
+             'UnitPrice', 'Amount']]
+print(result.head(20))</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- 変換のコツ -->
+  <section id="sql-tips">
+    <h2>変換のコツ</h2>
+
+    <div class="card">
+      <div class="card-title">💡 CSVファイル名を確認する</div>
+      <p>テーブル名から <code>テーブル名.csv</code> が自動生成されます。実際のファイル名やパスに合わせて修正してください。</p>
+      <pre><code># 生成例（修正前）
+orders = pd.read_csv("Orders.csv")
+
+# 修正後（実際のパスへ）
+orders = pd.read_csv("C:/data/受注データ.csv")</code></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💡 IIf の条件式は手修正が必要</div>
+      <p><code>IIf(Region = "東京", "首都圏", "その他")</code> のような単純な比較は <code>np.where()</code> に変換されますが、条件式内の変数名は <code>df["列名"]</code> 形式に手修正が必要です。</p>
+      <pre><code># 生成例（修正前）
+df["Area"] = np.where(Region = "東京", "首都圏", "その他")
+
+# 修正後
+df["Area"] = np.where(df["Region"] == "東京", "首都圏", "その他")</code></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💡 WHERE条件が複雑な場合</div>
+      <p>ANDやORが組み合わさった複雑な条件は <code>&</code> / <code>|</code> に変換されますが、括弧の追加が必要な場合があります。</p>
+      <pre><code># 複数条件の正しい書き方
+df = df[(df["Status"] == "未処理") & (df["Amount"] > 1000)].copy()</code></pre>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- エクスポート概要 -->
+  <section id="export-overview">
+    <h2>Accessエクスポートタブ — 機能概要</h2>
+
+    <p>AccessのCOM（Component Object Model）を経由して、Accessファイル内のオブジェクトをテキストファイルに書き出します。</p>
+
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠️</span>
+      <div>
+        <strong>動作条件</strong>
+        <ul style="margin-top:6px;">
+          <li>Windows 10/11</li>
+          <li>Microsoft Access がインストールされていること（Access Runtime も可）</li>
+          <li><code>pip install pywin32</code> が完了していること</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>オブジェクト種別</th><th>出力先</th><th>内容</th></tr>
+        <tr><td>クエリ</td><td><code>queries/</code></td><td>クエリ定義テキスト（SaveAsText）</td></tr>
+        <tr><td>VBAモジュール</td><td><code>modules/</code></td><td>モジュールのVBAコード</td></tr>
+        <tr><td>フォーム</td><td><code>forms/</code></td><td>フォーム定義テキスト</td></tr>
+        <tr><td>レポート</td><td><code>reports/</code></td><td>レポート定義テキスト</td></tr>
+        <tr><td>マクロ</td><td><code>macros/</code></td><td>マクロ定義テキスト</td></tr>
+        <tr><td>テーブル定義</td><td><code>tables/</code> + まとめCSV</td><td>フィールド名・型・サイズ・必須フラグ</td></tr>
+        <tr><td>クエリSQL一覧</td><td><code>all_queries_sql.csv</code></td><td>全クエリのSQL文をCSVにまとめる</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- エクスポート手順 -->
+  <section id="export-steps">
+    <h2>エクスポートの使い方</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>「📦 Accessエクスポート」タブを開く</strong>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Accessファイルのパスを入力する</strong>
+          <pre><code>C:\work\sample.accdb</code></pre>
+          <p style="font-size:13px; color:var(--text-muted);">出力先フォルダは省略可能です（省略時: ファイルと同じ場所に <code>export_ファイル名/</code> を作成）</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>エクスポートするオブジェクトをチェックする</strong>
+          <p>「クエリ」「VBAモジュール」「テーブル定義」は最初からオンになっています。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>「エクスポート後にpandasコードも変換する」オプション</strong>
+          <p>チェックを入れると、クエリのエクスポート後にpandasコードへの変換も自動で行います。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <strong>「📦 エクスポート実行」ボタンを押す</strong>
+          <p>進捗がリアルタイムで表示されます。完了後に出力ファイル一覧が表示されます。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- 出力ファイル -->
+  <section id="export-output">
+    <h2>出力ファイルの構成</h2>
+
+    <pre><code>export_sample/
+├── queries/
+│   ├── Q_受注抽出.txt        ← クエリ定義（SaveAsText形式）
+│   └── Q_売上集計.txt
+├── modules/
+│   └── basCommon.txt          ← VBAコード
+├── tables/
+│   ├── Orders.csv             ← テーブルごとのフィールド定義
+│   └── Products.csv
+├── all_tables_schema.csv      ← 全テーブルまとめCSV
+├── all_queries_sql.csv        ← 全クエリのSQL文
+└── converted_python/          ← pandas変換済みPythonコード
+    ├── Q_受注抽出.py
+    └── Q_売上集計.py</code></pre>
+
+    <h3>all_tables_schema.csv の形式</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>table</th><th>field</th><th>type</th><th>size</th><th>required</th></tr>
+        <tr><td>Orders</td><td>OrderID</td><td>4</td><td>4</td><td>True</td></tr>
+        <tr><td>Orders</td><td>ProductCode</td><td>10</td><td>50</td><td>False</td></tr>
+        <tr><td>Products</td><td>ProductCode</td><td>10</td><td>50</td><td>True</td></tr>
+      </table>
+    </div>
+    <p style="font-size:13px; color:var(--text-muted);">type は Access の DAO フィールド型定数。4=整数, 10=テキスト, 8=日付/時刻 など。</p>
+  </section>
+
+  <hr>
+
+  <!-- CLI: export -->
+  <section id="cli-export">
+    <h2>CLI: export_access.py</h2>
+    <p>Streamlit UIを使わずコマンドラインから実行する場合:</p>
+
+    <pre><button class="copy-btn" onclick="copyCode(this)">コピー</button><code># 全オブジェクトをエクスポート
+python export_access.py C:\work\sample.accdb
+
+# 出力先を指定
+python export_access.py C:\work\sample.accdb --out C:\export
+
+# 種別を絞る（クエリとモジュールのみ）
+python export_access.py C:\work\sample.accdb --type query module
+
+# テーブル定義のみ
+python export_access.py C:\work\sample.accdb --type table</code></pre>
+
+    <h3>オプション</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>オプション</th><th>内容</th></tr>
+        <tr><td><code>--out &lt;フォルダ&gt;</code></td><td>出力先フォルダ（省略時: ファイルと同じ場所）</td></tr>
+        <tr><td><code>--type &lt;種別&gt;</code></td><td><code>query</code> / <code>module</code> / <code>form</code> / <code>report</code> / <code>macro</code> / <code>table</code> / <code>all</code></td></tr>
+      </table>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- CLI: batch -->
+  <section id="cli-batch">
+    <h2>CLI: batch_convert.py</h2>
+    <p>エクスポートしたクエリSQLをpandasコードに一括変換:</p>
+
+    <pre><button class="copy-btn" onclick="copyCode(this)">コピー</button><code># CSVから変換
+python batch_convert.py export_sample/all_queries_sql.csv
+
+# queries/フォルダから変換
+python batch_convert.py export_sample/queries/</code></pre>
+
+    <p>出力先: 入力ファイルと同じフォルダ内の <code>converted_python/</code></p>
+  </section>
+
+  <hr>
+
+  <!-- フロー -->
+  <section id="flow">
+    <h2>推奨移行フロー</h2>
+
+    <div class="flow">
+      <div class="flow-box blue">①<br>Accessから<br>エクスポート</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box purple">②<br>SQLを<br>pandas変換</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box green">③<br>Copilotで<br>清書・修正</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box blue">④<br>Python<br>アプリ完成</div>
+    </div>
+
+    <div class="table-wrap" style="margin-top:16px;">
+      <table>
+        <tr><th>ステップ</th><th>作業</th><th>ツール</th></tr>
+        <tr><td>①</td><td>クエリ・VBA・テーブル定義をテキスト化</td><td>エクスポートタブ / export_access.py</td></tr>
+        <tr><td>②</td><td>クエリSQLをpandasコードに変換</td><td>SQL変換タブ / batch_convert.py</td></tr>
+        <tr><td>③</td><td>生成コードとVBAをCopilotに読ませて清書</td><td>GitHub Copilot / Claude</td></tr>
+        <tr><td>④</td><td>Streamlit / Flet / CLI としてアプリ化</td><td>Python</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- 未対応 -->
+  <section id="unsupported">
+    <h2>未対応・注意事項</h2>
+
+    <div class="alert alert-danger">
+      <span class="alert-icon">❌</span>
+      <div>
+        <strong>変換対象外のSQL種別</strong>
+        <ul style="margin-top:6px;">
+          <li><code>UPDATE</code> / <code>DELETE</code> / <code>INSERT INTO</code> クエリ</li>
+          <li><code>TRANSFORM</code>（クロス集計クエリ）</li>
+          <li>SQL Passthrough クエリ（外部DBへのクエリ）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠️</span>
+      <div>
+        <strong>手修正が必要なケース</strong>
+        <ul style="margin-top:6px;">
+          <li><code>Nz()</code> / <code>Format()</code> / <code>DateDiff()</code> / <code>Mid()</code> などのAccess独自関数</li>
+          <li>IIf の条件式内の変数名（<code>df["列名"]</code> 形式への修正が必要）</li>
+          <li>フィールド名に日本語・スペース・記号が含まれる場合</li>
+          <li>クエリが何段もネストしている場合</li>
+          <li><code>&</code> を使った文字列連結（Pythonでは <code>+</code> または f-string）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ️</span>
+      <div>
+        <strong>フォームとレポートについて</strong><br>
+        エクスポートは可能ですが、フォームのイベント処理・UI操作・VBA依存の処理は変換対象外です。
+        Streamlit や Flet でのUI再構築は手動で設計する必要があります。
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <h2>FAQ</h2>
+
+    <details style="margin-bottom:12px; cursor:pointer;">
+      <summary style="font-weight:700; padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
+        Q. Access がない PC でも SQL変換は使えますか？
+      </summary>
+      <div style="padding:12px 16px; border:1px solid var(--border); border-top:none; border-radius:0 0 var(--radius) var(--radius);">
+        はい。SQL変換タブ（Tab 1）は <code>streamlit pandas numpy</code> のみで動作します。<code>pywin32</code> や Microsoft Access は不要です。
+      </div>
+    </details>
+
+    <details style="margin-bottom:12px; cursor:pointer;">
+      <summary style="font-weight:700; padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
+        Q. エクスポート実行中にエラーが出ました
+      </summary>
+      <div style="padding:12px 16px; border:1px solid var(--border); border-top:none; border-radius:0 0 var(--radius) var(--radius);">
+        よくある原因:
+        <ul style="margin-top:8px;">
+          <li>Accessファイルが別のプロセスで開かれている → 閉じてから実行</li>
+          <li>パスに日本語が含まれる → 英語パスに移動してから実行</li>
+          <li><code>pywin32</code> がインストールされていない → <code>pip install pywin32</code></li>
+          <li>Microsoft Access がインストールされていない</li>
+        </ul>
+      </div>
+    </details>
+
+    <details style="margin-bottom:12px; cursor:pointer;">
+      <summary style="font-weight:700; padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
+        Q. テーブルのデータ（レコード）は出力できますか？
+      </summary>
+      <div style="padding:12px 16px; border:1px solid var(--border); border-top:none; border-radius:0 0 var(--radius) var(--radius);">
+        このツールはテーブル<strong>定義</strong>のエクスポートが対象です。レコード（データ）のエクスポートは Access の「外部データ → Excelにエクスポート」や <code>pyodbc</code> を使ってください。
+      </div>
+    </details>
+
+    <details style="margin-bottom:12px; cursor:pointer;">
+      <summary style="font-weight:700; padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);">
+        Q. 変換精度を上げるにはどうすればいいですか？
+      </summary>
+      <div style="padding:12px 16px; border:1px solid var(--border); border-top:none; border-radius:0 0 var(--radius) var(--radius);">
+        生成されたコードをGitHub CopilotやClaude に渡して「このコードの問題点を修正して」と依頼するのが最も効率的です。特に IIf の条件式・複合WHERE条件・未対応関数の変換に有効です。
+      </div>
+    </details>
+  </section>
+
+  <hr>
+  <p style="text-align:center; color:var(--text-muted); font-size:13px; padding-bottom:40px;">
+    Day 89 / 100 Days of Code &nbsp;|&nbsp; Access → pandas 変換アシスタント
+  </p>
+
+</main>
+</div>
+
+<script>
+// コピーボタン
+function copyCode(btn) {
+  const pre = btn.closest('pre');
+  const code = pre.querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '✓ コピー完了';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'コピー';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// スクロールスパイ
+const navLinks = document.querySelectorAll('nav a');
+const sections = document.querySelectorAll('section[id]');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const active = document.querySelector(`nav a[href="#${e.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
