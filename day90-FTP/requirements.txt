@@ -1,0 +1,11 @@
+# requirements.txt - FTP クライアント GUI アプリ (Day 90)
+#
+# 必須ライブラリはすべて Python 標準ライブラリのため、追加インストール不要。
+#
+# 標準ライブラリ（インストール不要）:
+#   tkinter   - GUI フレームワーク
+#   ftplib    - FTP 通信
+#   threading - スレッド処理
+#   json      - プロファイル保存
+#   os        - ファイルパス操作
+#   datetime  - ログのタイムスタンプ
