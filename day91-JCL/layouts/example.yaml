@@ -1,0 +1,27 @@
+# サンプルレイアウト定義
+# このファイルを参考に、データセットごとの YAML ファイルを作成してください
+
+dataset_name: EXAMPLE.DATASET
+description: サンプルデータセット
+lrecl: 100
+
+fields:
+  - name: 番号
+    start: 1
+    length: 15
+    type: CH
+
+  - name: 色
+    start: 16
+    length: 3
+    type: CH
+
+  - name: 単価
+    start: 19
+    length: 5
+    type: PD    # パック十進数：5バイト = 最大9桁
+
+  - name: 数量
+    start: 24
+    length: 4
+    type: PD    # パック十進数：4バイト = 最大7桁
