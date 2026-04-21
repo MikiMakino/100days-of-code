@@ -1,0 +1,2 @@
+pywin32==311
+openpyxl==3.1.5
